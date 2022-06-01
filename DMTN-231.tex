@@ -3,6 +3,11 @@
 \input{meta}
 
 % Package imports go here.
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{latexsym}
+\usepackage{color}
+\usepackage{enumitem}
 
 % Local commands go here.
 
@@ -16,7 +21,10 @@
 % \setDocSubtitle{A subtitle}
 
 \author{%
-Melissa Graham
+Melissa Graham, 
+Eric Bellm,
+Leanne Guy,
+and the Data Management System Science Team
 }
 
 \setDocRef{DMTN-231}
@@ -28,8 +36,7 @@ Melissa Graham
 % \setDocCurator{The Curator of this Document}
 
 \setDocAbstract{%
-This document describes how and why the Data Management System will generate and provide users with detection efficiencies for point-like diaSources using artificial source injection.
-}
+DRAFT. {\it Work in progress, see Section~\ref{sec:oq}}. This document describes how the Data Management System will determine and provide detection efficiencies for point-like {\tt diaSources} using artificial source injection. The scientific motivation and technical considerations are discussed.}
 
 % Change history defined here.
 % Order: oldest first.
@@ -50,6 +57,156 @@ This document describes how and why the Data Management System will generate and
 % ADD CONTENT HERE
 % You can also use the \input command to include several content files.
 
+% % % % % % % % % % % % % % % % % %
+\section{Introduction} \label{sec:intro}
+
+Any astrophysical question which asks, e.g., {\it "How often?"} or {\it "How many?"} about time-variable phenomena, such as population studies or occurrence rates, needs to know a survey's {\it detection efficiency}: the probability that a time-varying source is detected (or in other words, the fraction of all time-varying sources that are detected).
+
+Detection efficiencies are required for many of the core science pillars of the LSST, such as transient phenomena, cosmology, and Solar System studies; injecting synthetic sources and reprocessing images is a common method for deriving detection efficiency (Appendix~\ref{sec:sci}).
+
+Rubin Observatory documentation contains several requirements related to producing detection efficiencies for sources in difference images using synthetic source injection ({\tt diaSources}; Appendix~\ref{sec:docs}).
+Leaving this to be a user-generated data product would be a moderate risk to LSST science (Appendix~\ref{sec:opts}).
+
+This document describes how the Data Management (and/or the Rubin Data Production team in Operations) will make detection efficiencies available to users by:
+
+\begin{enumerate}
+\item injecting synthetic point-sources into a subset of images and reprocessing them with the Prompt and Data Release difference-image analysis pipelines;
+\item ensuring the synthetic sources cover the range of parameters needed to determine detection efficiencies for transients and variables;
+\item providing to users a catalog of injected sources, their simulated and measured properties, and whether they were detected; and
+\item generating and serving a table of detection efficiencies.
+\end{enumerate}
+
+Readers should refer to the Data Products Definitions Document \citedsp{LSE-163} for more information about DIA, difference images, and {\tt diaSources}.
+Detection efficiencies of extended difference-image sources (e.g., light echoes, trailed moving objects) are beyond the scope of this document.
+
+
+% % % % % % % % % % % % % % % % % %
+\clearpage
+\section{Open Questions}\label{sec:oq}
+
+\begin{enumerate}
+\item \textbf{What is the available computational budget for reprocessing images?} Appendix B says ``the DMS computational system is sized to accommodate the (re)processing of all images with fake sources implanted (from KT)", but this comment is old (2019 or earlier) and should be reconfirmed. To go in Section~\ref{sec:tech}.
+\item \textbf{How many injected sources are required to sufficiently characterize the detection efficiency?} Such as the number of ccds/night, number of sources/ccd, and especially, the number needed as a function of parameters $\vv{P}$: more fake sources will likely be needed for poor image quality, high local surface brightness, etc.
+\end{enumerate}
+
+For the latter, use existing detection efficiency papers from other surveys to evaluate how detection efficiency typically varies with image quality (and other parameters $\vv{P}$), in order to estimate how many injected sources will be needed.
+Could use the OpSim (baseline) to evaluate how many images LSST will have with a given IQ to evaluate whether a random selection of visits and ccds would be sufficient, or if they must be chosen specifically. 
+
+
+% % % % % % % % % % % % % % % % % %
+\section{Technical Considerations}\label{sec:tech}
+
+TBD.
+
+
+
+% % % % % % % % % % % % % % % % % %
+\clearpage
+\section{Detection Efficiency Data Products}\label{sec:dedp}
+
+{\bf Detection:} sources in difference images with a signal-to-noise ratio $SNR > {transSNR} = 5$ are considered {\it detected} and become a {\tt diaSource}\citedsp{LPM-17}.
+ 
+{\bf Detection Efficiency:} The probability that a true variable or transient astrophysical source with a given difference-image flux is detected and becomes a {\tt diaSource}.
+(In other words, the fraction of all true variable or transient astrophysical sources with a given difference-image flux that are detected and become a {\tt diaSource}).
+
+The detection efficiency data products will include: 
+
+\begin{itemize}
+\item a catalog of metadata for injected sources (see below)
+\item catalogs similar to {\tt diaSource} and {\tt diaForcedSource} that contain only recovered injected sources
+\item a table of derived detection efficiencies ($\eta(m,\vv{P})$, see Section~\ref{ssec:dedp_pars}
+\end{itemize}
+
+The catalog of metadata for injected sources will include:
+
+\begin{itemize}
+\item identifiers for the direct and template images
+\item pixel and sky coordinates
+\item flux or magnitude (for direct and template)
+\item the parameters described in Section~\ref{ssec:dedp_pars}
+\end{itemize}
+
+The injected source metadata will include sufficient information to recreate the exact PSF that was injected, so that images with injected sources do not need to be persisted.
+
+
+\subsection{Methods for Generating Detection Efficiencies}\label{ssec:dedp_gen}
+
+Detection efficiencies are typically generated by injecting synthetic sources into images -- into both the template and direct images or just the direct image, to simulate stars or transients respectively -- using a point-spread function shape similar to real astrophysical sources, and then reprocessing the images with the survey's difference image analysis pipeline and measuring the fraction detected in the difference image.
+
+For the LSST, detection efficiencies will be derived for both the Prompt and Data Release (DR) difference image analysis (DIA) pipelines, because they are a bit different\footnote{Differences between the Prompt and DR DIA pipelines are imposed by the Prompt pipeline's 60 second limit.}.
+
+For both the Prompt and DR pipelines, it is likely that the {\it full} pipeline need not be run -- sources could probably just be injected into the processed visit image (i.e., all prior stages can be skipped), then difference images generated, and then source detection and measurement run on the difference image (i.e., source association can be skipped).
+
+For the Prompt pipeline, sources will \emph{not} be injected into new images as a part of Prompt processing.
+Instead, the Prompt pipeline will be rerun on a subset of the night's images with sources injected.
+The detection efficiency data products for the Prompt pipeline will thus be updated within the 24 hour timescale (similar to the Prompt Products Database), not on the 60 second timescale.
+
+For the DR pipeline, the detection efficiency data products will be released on an annual basis along with the other DR data products.
+
+For both the Prompt and DR detection efficiencies, the same parameters for synthetic sources (Section~\ref{ssec:dedp_pars}) will be used, and the locations of detected {\tt diaSources} will be avoided. 
+
+
+
+\subsection{Parameters for Characterizing Detection Efficiencies}\label{ssec:dedp_pars}
+
+The detection efficiency can be characterized as $\eta(m)$, where $m$ is the apparent magnitude of the time-changing component with respect to the template image, and $\eta$ is a value between $0$ and $1$ that represents the probability that the source would be detected in the difference image.
+As described in Appendix~\ref{sec:sci}, $\eta$ depends on more than just $m$, and is a function several other parameters ($\vv{P}$), such as those listed in Table \ref{tab:eta_pars}.
+
+An accurate measure of $\eta(m,\vv{P})$ for every pixel of every difference image is technologically unfeasible.
+Instead, an analytic model for $\eta(m,\vv{P})$ can be built, so long as the synthetic sources cover the full range of $m$ and $\vv{P}$, and a sufficient number of synthetic sources are injected to measure how $\eta$ varies with $m$ and $\vv{P}$.
+
+\textbf{The final list of parameters, the fraction of CCDs that will need to be reprocessed, and the number of injected sources per CCD all remain To Be Determined (Section~\ref{sec:oq}).}
+
+\begin{table}[h]
+\begin{center}
+\begin{footnotesize}
+\caption[]{A description of the potential image and source parameters ($\vv{P}$) that can affect the detection efficiency ($\eta(m)$) of point sources in a difference image (per filter).}
+\label{tab:eta_pars}
+\setlength{\extrarowheight}{5pt}
+\begin{tabular}{|p{3.1cm}|p{12cm}|}
+\hline
+{\bf Parameter} & {\bf Description} \\
+\hline
+Surface Brightness & Typically, $\eta$ decreases for objects embedded in brighter host galaxies. \\
+\hline
+Point-Source Brightness & For stars, $\eta$ will depend on its magnitude in the template image. \\
+\hline
+Static-Source Offset & Sometimes, $\eta$ decreases for objects that are near (i.e., overlap the point-spread function of) static sources (e.g., AGN, galaxy cores, especially if cuspy in profile). \\
+\hline
+Field Crowdedness & $\eta$ for stars will likely depend on field crowdedness (e.g., stars per square arcmin). \\
+\hline
+CCD Location & With some instruments, $\eta$ decreases near the CCD edges due to distortion. \\
+\hline
+Image FWHM & The value of $\eta$ can decrease for extreme FWHM differences from the template (i.e., very good or very poor seeing). \\
+\hline
+Image Airmass & LSST images will experience differential chromatic refraction which affects image subtraction \citedsp{DMTN-037}, and thus potentially also $\eta$. \\
+\hline
+Sky Brightness & Typically, $\eta$ decreases when the sky background is bright or has a strong gradient (e.g., during twilight, near the moon). \\
+\hline
+Sky Cloud Cover & Extinction will affect $\eta$ by degrading the image magnitude limit. \\
+\hline
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\end{table}
+
+
+\subsubsection{Parameters that do not need to be considered.}\label{sssec:dedp_pars_no}
+
+As described in Appendix~\ref{sec:sci}, for $\eta(m,\vv{P})$ the synthetic sources do {\it not} need to accurately represent astrophysical transient types in terms of their colors, redshifts, host offsets, durations, light curves, etc.
+That aspect of the analysis is best left to the user to handle for their particular type of object.
+
+A specific example of how users might apply $\eta(m,\vv{P})$ in their analysis is provided in Appendix~\ref{ssec:sci_cfht}.
+Generally, it would involve simulating a set of light curves for the object type of interest (e.g., normal $0.1<z<0.5$ Type Ia supernovae), and then using the detection efficiency table to evaluate the fraction that would be ``identified" in a given time-frame (where ``identified" might additional specific criteria in addition to detection as a {\tt diaSource}, such as a reliable photometric classification).
+This is typically done as part of an MC analysis in order to marginalize over intrinsic distributions of, e.g., the brightness or host offsets of the object type of interest.
+
+
+
+
+
+
+
+
 \appendix
 % Include all the relevant bib files.
 % https://lsst-texmf.lsst.io/lsstdoc.html#bibliographies
@@ -64,7 +221,19 @@ This document describes how and why the Data Management System will generate and
 %\printglossaries
 
 
+\clearpage
+\input{ap_sci.tex}
 
+\clearpage
+\input{ap_docs.tex}
 
+\clearpage
+\input{ap_rb.tex}
+
+\clearpage
+\input{ap_opts.tex}
+
+\clearpage
+\input{ap_tech.tex}
 
 \end{document}

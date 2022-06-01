@@ -1,0 +1,98 @@
+\section{Options Regarding Detection Efficiencies} \label{sec:opts}
+
+Options are discussed in terms of the DM effort they require, the risks involved, and the science impact. 
+
+The option in \ref{ssec:opts_3}, which requires a bit of extra DM effort to (1) ensure that the artificial sources synthesized and injected into images in order to characterize spuriousness cover the parameters needed for scientific analyses, $\vv{P}$ (Table \ref{tab:eta_pars}), and (2) to generate and provide a table of detection efficiencies, would moderately benefit LSST science.
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{Do Nothing}\label{ssec:opts_no}
+
+The science community would have access to only the software for synthetic source injection (DMS-REQ-0009, \ref{ssec:docs_dmsr}).
+
+{\bf DM Effort -- None.}
+
+{\bf Risk -- Major.}
+Multiple user groups may then attempt wide-scale source injection and image re-processing, leading to redundant use of limited computational and human resources. 
+
+{\bf Science Impact -- Negative.}
+Lack of detection efficiencies might prohibit science investigations of transient phenomena, Solar System objects, and cosmology, or limit them to research groups able to put effort towards deriving detection efficiencies.
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{Make Available the Artifical Sources Use for Spuriousness Characterization}\label{ssec:opts_1}
+
+In this scenario, the science community would be given access to the tables of the synthetic sources that are injected into imaging data in order to meet the requirements to characterize the spuriousness parameter (OSS-REQ-0351, \ref{ssec:docs_oss}).
+
+For example, this might take the form of a {\tt DIASource}-like catalog for the synthetic point sources (without the $SNR>5$ restriction), which users could bin by the $\vv{P}$ relevant to their science and generate $\eta(\vv{P})$.
+Since the current OSS requirements are to characterize the relationship between spuriousness and sample completeness {\it only as a function of visit image qualities} for {\tt DIASources} with SNR$>$5 (\S~\ref{sec:docs}), this scenario does not guarantee that these artificial sources would be adequate for all science use-cases. 
+
+{\bf DM Effort -- Minor.}
+E.g., ingesting the synthetic source catalogs to qserv or the Butler.
+
+{\bf Risk -- Moderate.}
+It is unlikely that the synthetic sources injected for spuriousness characterization would adequately cover $\vv{P}$.
+The DM effort to release the tables might not be worth it.
+
+{\bf Science Impact -- Minor Benefit.}
+Allowing users to build detection efficiency matrices from the same artificial sources as are used to characterize spuriousness might enable some scientific analyses.
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{... And Optimize the Artificial Sources for Detection Efficiencies}\label{ssec:opts_2}
+
+This scenario builds on the above, adding a bit of extra effort dedicated to ensuring the simulated sources that are injected and recovered in order to meet the requirements to characterize the spuriousness parameter cover the parameters needed for scientific analyses, $\vv{P}$, as listed in Table \ref{tab:eta_pars}.
+
+{\bf DM Effort -- Minor.}
+E.g., the extra time and effort to ensure the synthetic sources cover an adequate range of parameter space, $\vv{P}$ (plus the effort described above).
+
+{\bf Risk -- Minor.}
+With sufficient effort to make sure the synthetic sources are broadly useful, DM's efforts here would be worth it and be likely to benefit science.
+
+{\bf Science Impact -- Moderate Benefit.}
+Allowing users to build detection efficiency matrices from a scientifically-validated set of artificial sources would enable more scientific analyses.
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{... And Generate and Provide Detection Efficiencies}\label{ssec:opts_3}
+
+This scenario builds on the above, adding a bit of extra effort to generate and provide the detection efficiency matrix, $\eta(\vv{P})$.
+
+{\bf DM Effort -- Moderate.}
+E.g., the extra time and effort to generate the detection efficiency matrix and provide examples of how to use it (plus the efforts described above).
+
+{\bf Risk -- Minor.}
+It is very likely that this goal would be achievable and that this effort would be successful.
+
+{\bf Science Impact -- Moderate Benefit}
+Enables everyone in the science community to engage in the many different types of scientific analyses that require detection efficiencies.
+
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{Further Considerations}\label{ssec:opts_plus}
+
+{\bf Detection efficiencies should be generated on an annual timescale. -- }
+The characterization of detection efficiencies is something that could (and should) only be done as part of the Data Release processing, on an annual timescale. 
+Generally, the science investigations that require detection efficiencies would be done with the Data Release {\tt DIASource} catalog because they require a well-defined sample, and the Prompt {\tt DIASource} catalog will be constantly growing.
+If needed, the DR-derived detection efficiencies could be used on the Prompt data products for the following year.
+
+{\bf Separate Image Processing Required -- }
+This may seem obvious, but: although some past surveys have injected synthetic sources into their raw data, allowing them to only process their images once and to conserve their total computational budget, this is not feasible for the LSST due to its wide variety of science use cases for the processed images and the high risk involved in contaminating the data.
+
+In order to generate detection efficiencies, artificial sources do not need to be injected into {\it every} LSST image, only a representative sample.
+
+{\bf Avoid Contamination -- }
+Artificial sources should not be injected at random locations because it is important to sample regions with higher surface brightness and to avoid the locations of known {\tt DIAObjects}.
+If 1000 artificial sources are assigned random locations and injected into a 3.2 Gp image, and we assume that image has 10000 (randomly-distributed) true sources in it, then the probability that none of the artificial sources are coincident with one of the true sources is $0.9968$.
+However, over a full night of 1000 visits, the probability that none of the artificial sources ever landed on a true source in any image is $0.0437$, and it is most likely ($P=0.2218$) that 3 artificial sources would have interfered with true sources. 
+% from scipy.stats import hypergeom
+% import matplotlib.pyplot as plt
+% [M,n,N] = [3200000000,10000,1000]
+% rv = hypergeom(M,n,N)
+% print( rv.pmf([0,1,2,3,4]) )
+% [  9.96843454e-01   3.11521588e-03   4.86216368e-06   5.05362508e-09   3.93505558e-12]
+% [M,n,N] = [3200000000000,10000000,1000000]
+% rv = hypergeom(M,n,N)
+% print( rv.pmf([0,1,2,3,4]) )
+% [ 0.04367555  0.13880061  0.21497859  0.22180274  0.17274015]

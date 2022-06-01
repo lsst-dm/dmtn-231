@@ -1,0 +1,128 @@
+\section{Scientific Examples}\label{sec:sci}
+
+Detection efficiencies are required for many of the core science pillars of the LSST, as described below.
+Many other surveys use populations of synthetic sources injected into the data in order to characterize the detection efficiency, as described in the examples provided in \ref{ssec:sci_trans}.
+
+In consideration of the scientific motivation for detection efficiencies, and what has worked for other surveys, two points are clear.
+
+\begin{enumerate}
+
+\item The population of synthetic sources injected in order to characterize the detection efficiency should have similar distributions as real astrophysical phenomena in terms of brightness and location (e.g., proximity to static-sky sources, field crowdedness, surface brightness), and the subset of images used should sample the distributions of, e.g., image quality (seeing), sky brightness, and airmass. 
+
+\item The simulated fakes do not need to accurately represent astrophysical transient types, colors, redshifts, durations, light curves, etc., or be planted in sequential images in a correlated way to represent real light curves.
+That aspect of the analysis is best left to the user to handle during the MC simulation stage for their particular type of object.
+
+\end{enumerate}
+
+% % % % % % % % % % % % % % % %
+\subsection{Transients}\label{ssec:sci_trans}
+
+Transient events such as stellar explosions (supernovae, kilonovae) and tidal disruption events (TDEs; stars destroyed by close passage to a supermassive black hole) occur once and do not repeat.
+Since most transient progenitors are stars, they are most often found in high surface brightness environments (i.e., galaxies; their spatial distribution ``follows the light") and require difference imaging in order to be discovered, and thus detection efficiencies in order to characterize their occurrence rates.
+
+For example, transient occurrence rates as a function of environment can constrain their progenitor star characteristics, which requires that detection biases be well known, as does understanding selection biases in transient samples (e.g., when using Type Ia supernova as cosmological standard candles). 
+
+The four surveys mentioned below have either inserted fakes into all of their live images (SDSS-II and DES) or into a representative set of images at a later time (CFHT and PTF), to ensure that detection efficiencies can be determined for the full range of image parameters.
+In all cases, the fakes were simulated with parameter distributions (e.g., brightness, location) that roughly mimic the real astrophysical objects of interest for each particular survey (mostly supernovae, for the above examples).
+Typically, the MC method was then used to simulate light curves for the transient of interest, and then the derived detection efficiencies were applied.
+
+The take-away message is that, for Rubin Observatory to best serve a broad section of the transient community, the simulated population of fake sources need only be representative of true astrophysical sources in a bulk sense, in terms of their brightness and location (i.e., plant more faint sources than bright, and more in high surface-brightness areas than isolated regions).
+The simulated fakes do not need to accurately represent astrophysical transient types, colors, redshifts, durations, light curves, etc., or be planted in sequential images in a correlated way to represent real light curves.
+That aspect of the analysis is best left to the user to handle during the MC simulation stage for their particular transient type. 
+
+\subsubsection{Sloan Digital Sky Survey II (SDSS-II)}
+
+In order to calculate the occurrence rates of Type Ia supernovae (SNe\,Ia) from the SDSS-II, \cite{2008AJ....135..348S} generated a realistic sample of SNe\,Ia and injected fake point sources into the images as part of the live data processing pipeline to discover SNe\,Ia.
+Additional simulations to evaluate on how often the fakes were recovered by the end-to-end SN\,Ia discovery pipeline were then required to evaluate how assumptions about the simulated population (e.g., the distribution of light curve stretches) contributed to the final uncertainty in the derived rates \citep{2008ApJ...682..262D}.
+The final form of their derived detection efficiency for SNe\,Ia was $\epsilon(z) = (0.78 \pm 0.01) + (-0.13 \pm 0.14)z$, within which is captured assumptions about the true relative fraction of each SN\,Ia subtype, such as the under/over-luminous 91bg/91T-likes \citep{2008ApJ...682..262D}.
+The detection efficiency, $\epsilon$, contributed to the final volumetric rate, $r_V = N / \widetilde{VT\epsilon}$, where $N$ is the number of SNe\,Ia detected, and $\widetilde{VT\epsilon}$ is the product of the effective survey volume, time, and detection efficiency.
+
+\subsubsection{Dark Energy Survey (DES)}
+
+In order to determine the SN\,Ia detection efficiency as a function of redshift, the DES team used a method very similar to SDSS-II: fake sources were injected into their live data, which was run through their real-time {\tt DiffImg} pipeline used to detect transients \cite{2015AJ....150..172K}.
+This process also started by simulating a realistic sample of SNe\,Ia, with parameters such as light curve stretch, host offset, and subtype drawn from established underlying distributions, and then used a Monte Carlo simulation of many more SN light curves, combined with the detection efficiencies for their fakes, to determine the SN\,Ia detection efficiency as a function of redshift.
+% The DES real/bogus algorithm an pipeline are described by Goldstein et al. 2015:
+% http://adsabs.harvard.edu/abs/2015AJ....150...82G
+
+\subsubsection{A Canada-France-Hawaii Telescope (CFHT) Cluster Survey}\label{ssec:sci_cfht}
+
+In order to calculate the occurrence rate of SNe\,Ia in galaxy clusters for a CFHT imaging survey, \cite{2012ApJ...746..163S} performed DIA to detect SNe in real time, but the fake injection was done separately.
+Simulated point sources were implanted into a representative subset of their images, and detection efficiencies calculated as a function of the relevant parameters for this survey: apparent magnitude, image quality, and focal plane location (because because the survey used single pointings with only small dithers).
+Their expression for the rate of Type Ia supernovae per unit stellar mass is $R_{\rm Ia} = (N_{\rm Ia} / C_{\rm spec}) / ( \sum_{j=1}^{j=N_{\rm img}} \Delta t_j Mj )$, where $N_{\rm Ia}$ is the number of SNe\,Ia discovered in the survey, $C_{\rm spec}$ is the spectroscopic confirmation rate (determined separately), the denominator's sum is over all images of the survey, $M_j$ is the total stellar mass within the image, and $\Delta t_j$ is the control time for SNe\,Ia of that image.
+The control time is expressed as $\Delta t = \int_{t_1}^{t_2} \eta(m(t)) dt$, where $m(t)$ is a SN\,Ia light curve, $\eta$ is the detection efficiency, and the integration limits are the survey's temporal boundaries.
+
+The Monte Carlo method was then used to calculate $R_{\rm Ia}$ for the survey many times while sampling over a realistic distribution of SN\,Ia light curve properties for $m(t)$ and the errors in $N_{\rm Ia}$, $M_j$, and $eta$.
+During this MC, an {\it effective} detection efficiency was used, which accounts for the possibility that the simulated SN\,Ia was detected in the previous two images: $\eta = \eta_j - \eta_j \eta_{(j-1)} - \eta_j \eta_{(j-2)} - \eta_j \eta_{(j-1)} \eta_{(j-2)}$ (as was appropriate for this surveys monthly cadence).
+The final result was quoted as the median of the MC rates with $1\sigma$ errors. A similar methodology was applied to this survey's cluster SNe\,II in \cite{2012ApJ...753...68G}.
+
+\subsubsection{Palomar Transient Factory (PTF)}
+
+The PTF covered $8000$ square degrees with a three-to-five day cadence and generated over $1$ $\rm PB$ of data.
+As detailed by \cite{2017ApJS..230....4F}, inserting fake sources into all of these images was both impractical and unnecessary.
+Instead, they chose a single representative {\it field} and planted fake sources in all images of that field.
+The fakes were given a uniform distribution in apparent magnitude, distributed in each image such that most of them are located within a galaxy, and then the PTF detection efficiencies were determined as a function of the apparent magnitude, the local surface brightness, and image parameters such as FWHM, airmass, moon illumination fraction, and sky background.
+These detection efficiencies were used to derive the volumetric rate of normal SNe\,Ia \citep{2019MNRAS.tmp..772F}, of Ca-rich transients by \cite{2018ApJ...858...50F}, and of tidal disruption events (TDEs) by \cite{2018ApJS..238...15H}.
+However, note that some rates analyses for TDEs have used aperture photometry and not difference imaging, and thus did not need fake injection for difference-image detection efficiencies (e.g., \cite{2016MNRAS.455.2918H}).
+
+% Frohmaier uses stars from the field, not a simulated PSF: "clone-stamping".
+% Frohmaier 2019 details: r_v(z) = (1/V deltaT) sum_{i=1}^N (1+z_i) / epsilon_i
+% r_v(z) = volumetric rate of SNeIa at redshift z
+% V = volume
+% delta T = survey time
+% sum over the number of SNeIa in the final sample
+% (1+z_i) = cosmological time dilation factor
+% epsilon_i = "detection efficiencies of each object"
+% but note that epsilon != eta, rather epsilon is built from eta
+% a large sample of SNeIa with realistic intrinsic properties are simulated, planted in the data, and then recovered, and then a grid of recovery fractions as a function of SNIa intrinsic properties and redshift is created, and those are the epsilons assigned to detected SNeIa
+
+
+% % % % % % % % % % % % % % % %
+\subsection{Active Galactic Nuclei}\label{ssec:sci_agn}
+
+Active Galactic Nuclei (AGN) are powered by a supermassive black hole in the center of a galaxy, surrounded by a gas disk.
+Their energy output is non-thermal emission from X-ray through to mid-infrared, including emission lines in the optical spectrum, and many (or most) AGN exhibit optical variability.
+As such, they appear as a variable point source in the cores of galaxies.
+Many studies of AGN use aperture photometry on direct images, and not difference imaging, because it is desirable to have the {\it entire} flux of the AGN's point source, not just the flux in its variable component.
+
+% The first to use variability to select AGN was Sarajedini et al. 2003; an two-epoch HST survey.
+AGN samples have typically identified using spectroscopic emission lines, optical colors, or by looking for excesses of radio, X-ray, or mid-infrared emission, but selection by optical variability is also an option and in particular it may be better at including low-luminosity AGN, as described by \cite[e.g.,][]{2008A&A...488...73T,2010ApJ...723..737V}.
+The detection method of \cite{2008A&A...488...73T} uses image subtraction for the initial detection of AGN candidates, mainly because difference imaging was already done to find supernovae in the survey.
+Aperture photometry is then performed on the candidates, and a variability threshold applied to form their final sample for spectroscopic follow-up.
+\cite{2010ApJ...723..737V} skip the difference imaging step and use aperture photometry and a statistical analysis true variability to identify AGN.
+Neither use the injection of fake point sources to evaluate their detection efficiencies, and instead use objects with spectra and/or X-ray detections to estimate their completeness.
+% De Cicco et al. 2015 is very similar to Trevese, done in the VST-SUDARE/VOICE survey for SNe.
+However, using spectra or X-ray to characterize the sample selection function of AGN identified by optical variability might not be possible in the LSST era, when optical variability becomes a more efficient and prolific way to discover a AGN \cite[e.g.,][]{2014ApJ...782...37C}, generating significantly larger, lower-luminosity, and/or higher-redshift samples, for which spectroscopic confirmation is more difficult.
+
+Furthermore, TDE and SNe also occur in the cores of galaxies \citep[e.g.,][]{2009A&A...507L..17P,2012ApJ...744L..19K}, causing contamination of the AGN samples, and quantifying the rate of missed transients in the cores of galaxies remains an open problem.
+
+Considering the needs of the AGN, TDE, and SN communities suggests that a population of fake injected transients to characterize the difference-image detection efficiency of point sources in galaxy cores would be scientifically beneficial.
+
+
+
+% % % % % % % % % % % % % % % %
+\subsection{Variable Stars}\label{ssec:sci_varstar}
+
+A star's luminosity might exhibit intrinsic variability (e.g., RR Lyrae, Cepheids) and/or extrinsic variability (e.g., eclipsing binaries, exoplanet transits, or microlensing events).
+In uncrowded fields, using direct images and the total flux is preferable to difference-imaging analysis for scientific studies that aim to identify and characterize variable stars.
+However, in crowded fields such as the Galactic plane, identifying variable stars in difference images can be much easier because the difference image is not as (or not at all) crowded, compared to the direct image.
+
+For example, the census of variable stars in crowded fields by \cite{2016A&A...588A.128F} describes how difference imaging is used, although it does not appear that injecting fake sources or deriving detection efficiencies was needed for their analysis.
+
+It also seems that difference-image detection efficiencies are not needed for microlensing studies, for which it is a common methodology to fit a PSF to every pixel of a difference image, concoct a "light curve", and then statistically assess whether it is consistent with the expected shape of a microlensing event \cite{2015ApJ...806..161L}\footnote{Although \cite{2015ApJ...806..161L} does mention that detection efficiencies would be used in a paper in preparation.}. 
+
+Despite difference-image detection efficiencies not playing a role in past variable star studies, they might still be needed for LSST analyses.
+For example, injecting new fake sources in crowded stellar fields might be useful for detection efficiencies for stars which are too faint to have a counterpart in the template, but whose variable component makes them detectable by LSST for a short while.
+This would apply to e.g., M-dwarf flares (a common contaminant in searches for young SNe) and microlensing events.
+
+Simulating variability of stars that {\it are} present in the template image is beyond the scope of this document.
+
+
+% % % % % % % % % % % % % % % %
+\subsection{Moving Objects}\label{ssec:sci_move}
+
+All of the moving objects identified by LSST will first be detected as difference-image sources, and detection efficiencies would be useful for population studies.
+In epochs of non-detection, being able to obtain the detection efficiency at a predicted location (i.e., as a function of local surface brightness and image qualities) would be a useful quantity for science goals related to moving object populations.
+The probability of, e.g., a faint asteroid's chance alignment over bright galaxies is small, and so fake injected point sources in empty locations may be more useful for moving object science --- these would be needed to simulate very high-redshift transients, as well.
+
+A consideration of whether the injection of trailed sources is scientifically useful is left for other work.
+

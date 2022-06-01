@@ -1,0 +1,16 @@
+\section{Artificial Source Injection Techniques}\label{sec:tech}
+
+Describing the technique for artificial source injection that the LSST Science Pipelines will use is left for the Data Management Science Pipelines Design document, \citedsp{LDM-151}.
+
+Typically, artificial sources are added to the direct image {\it before} that image enters the difference imaging pipeline, so that the detection efficiency captures the end-to-end pipeline efficiency for detecting difference-image sources.
+
+{\bf Model PSF --}
+A 2D model for the PSF is added to the direct image in order to simulate a new point source.
+The shape of the PSF is derived from known trends with, e.g., the focal plane location or airmass (DCR), and the brighter/fatter effect.
+
+{\bf Clone-Stamping --}
+A nearby star is cut out and rescaled, and used as the simulated point source.
+One of the main drawbacks of using clone-stamping with LSST images is that incorporating the brighter/fatter effect into the simulation requires either that a star which is both nearby and of a similar brightness be used or that a model component added to the clone star to appropriately change the shape for the simulated brightness.
+Another drawback of clone-stamping is that very sparse/crowded fields might not have enough nearby/isolated point sources to use.
+
+Techniques to simulate the variability of real astrophysical objects, such as stars with a time-variable component, are considered beyond the scope of this document.

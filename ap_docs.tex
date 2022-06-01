@@ -1,0 +1,100 @@
+\section{Requirements Review}\label{sec:docs}
+
+There are four requirements related to producing or serving detection efficiencies for transient {\tt DIASources} in difference images: OSS-REQ-0352\ossreq{0352}, OSS-REQ-0353\ossreq{0353}, DMS-REQ-0097\dmreq{0097}, and DMS-REQ-0009\dmreq{0009}.
+
+Relatedly, the SRD specifies the definition for ``detection" as $SNR>5$, the OSS specifies that spuriousness (see Appendix~\ref{sec:rb}) characterization be done {\it ``by insertion and recovery of artificial sources"}, and the DMSR specifies that {\it software} for fake injection is a deliverable of the DMS (\S~\ref{ssec:docs_dmsr}).
+The DPDD and LPM-151 also contain some discussion relevant to detection efficiencies.
+
+Together, these specifications indicate that the use of artificial source injection to determine detection efficiencies for {\tt DIASources} would not be an expansion of scope for DM.
+
+As a final note, the DMS computational system is sized to accommodate the (re)processing of all images with fake sources implanted {\bf (from KT)}.
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{Science Requirements Document (SRD, LPM-17)}
+
+The SRD \citedsp{LPM-17}, V5.2.4 (Jan 30 2018), does not contain any requirements related to detection efficiencies.
+
+The SRD does describe how the Prompt pipeline should provide {\it ``the fast release of data on likely optical transients ... detected above {\tt transSNR} signal-to-noise ratio in difference images"}, where {\tt transSNR} = 5 (page 41).
+This is pertinent to detection efficiencies because it defines that all sources with $SNR \geq 5$ in a difference image are considered ``detected".
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{Observatory System Specifications (OSS, LSE-30)}\label{ssec:docs_oss}
+
+The OSS \citedsp{LSE-30}, V19.1 (July 30 2021) contains four requirements related to characterizing the spuriousness (also known as the ``real/bogus" parameter), completeness, and purity of LSST sources detected in difference images using artificial injected sources. 
+See Appendix~\ref{sec:rb} for a primer on spuriousness, completeness, and purity.
+
+``Characterizing completeness" requires detection efficiencies, so these are effectively also requirements on producing detection efficiencies. 
+
+\begin{itemize}
+
+\item OSS-REQ-0351\ossreq{0351}, {\it Difference Source Spurious Probability Metric}, specifies that {\it ``the Observatory shall develop a metric to characterize the probability of each reported difference source being spurious"} (Section 3.1.5.2.1.7.5).
+The discussion further clarifies that {\it ``the performance of this metric will be assessed by simulations, by insertion and recovery of artificial sources, and comparisons to ground truth where known"}.
+
+\item OSS-REQ-0352\ossreq{0352}, {\it Difference Source Sample Completeness}, specifies that {\it ``for each visit, the Observatory shall estimate the detected difference source sample completeness and purity as a function of the spuriousness metric threshold cut"} (Section 3.1.5.2.1.7.6).
+The discussion further clarifies that {\it ``this information will aid the end
+users in selecting the spuriousness threshold appropriate for their particular science case"}.
+However, as this requirement cannot be met without {\it difference source sample completeness}, it cannot be met with out detection efficiencies.
+
+\item OSS-REQ-0353\ossreq{0353}, {\it Difference Source Spuriousness Threshold - Transients}, specifies that {\it ``there shall exist a spuriousness threshold {\tt T} for which the completeness and purity of selected difference sources are higher than {\tt transCompletenessMin} (90\%)\reqparam{transCompletenessMin} and {\tt transPurityMin} (95\%)\reqparam{transPurityMin}, respectively, at the SNR detection threshold {\tt transSampleSNR} (6)\reqparam{transSampleSNR}. This requirement is to be interpreted as an average over the entire survey"} (Section 3.1.5.2.1.7.7).
+As for OSS-REQ-0351, the discussion further clarifies that {\it ``the performance of this metric will be assessed by simulations, by insertion and recovery of artificial sources, and comparisons to ground truth where known"}.
+As for OSS-REQ-0352, since this requirement cannot be met without {\it difference source sample completeness}, it cannot be met with out detection efficiencies.
+
+\item OSS-REQ-0354\ossreq{0354}, is similar to OSS-REQ-0353 but defines a threshold for moving objects.
+
+\end{itemize}
+
+% Regarding spuriousness, the discussion for OSS-REQ-0351 further describes that the {\it ``spuriousness metric be prior free to the extent possible. For example, while it may make use of information from the source and image characterization (e.g., comparison of source to PSF morphology), as well as the information on the Telescope and Camera system (e.g., ghost maps, defect maps, etc.), it will not use any information about the astrophysical neighborhood of the source, whether it has been previously observed or not, etc. The intent is to avoid introducing a bias against unusual sources or sources discovered in unusual environments"}.
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{Data Management System Requirements (DMSR, LSE-61)}\label{ssec:docs_dmsr}
+
+The DMSR \citedsp{LSE-61}, V9.0 (Feb 12 2021) contains a few statements relevant to detection efficiencies. 
+
+\begin{itemize}
+
+\item DMS-REQ-0097\dmreq{0097}, {\it "Level 1 Data Quality Report Definition"}, specifies that the Data Management System (DMS) {\it ``shall produce ... indicators of data quality that result from running the DMS pipelines, including ... detection efficiency for point sources vs. mag for each utilized filter"} (Section 1.3.14).
+Although DMS-REQ-0097 is derived from OSS-REQ-0131, {\it ``Nightly Summary Products"}, and seems more intended to produce a nightly summary of the general performance of the observatory and the DMS, it is still a requirement to provide scientifically useful detection efficiencies that are the topic of this document. 
+
+\item DMS-REQ-0009\dmreq{0009}, {\it ``Simulated Data"}, specifies that {\it ``the DMS shall provide the ability to inject artificial or simulated data into data products to assess the functional and temporal performance of the production processing software"} (Section 3.2.1), and detection efficiencies would be part of that performance assessment.
+This requirement is derived in part from OSS requirements 0351, 0353, and 0354 discussed above.
+
+\end{itemize}
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{Data Products Definitions Document (DPDD, LSE-163)}\label{ssec:docs_dpdd}
+
+The DPDD \citedsp{LSE-163}, V3.6 (Dec 17 2021) is not a requirements document but does have some information relevant to detection efficiencies.
+
+Table 1 lists a single float is also reserved for ${SNR}$ in the DPDD's {\tt DIASource} table, defined as the {\it ``signal-to-noise ratio at which this source was detected in the difference image"}.
+
+Table 1 also lists a single float is reserved in the {\tt DIASource} table for the spuriousness parameter.
+The DPDD's definition and description of spuriousness match the OSS requirement (i.e., this is a direct flow-down of OSS-REQ-0351\ossreq{0351}).
+
+The {\tt DIASource} catalog table has three other relevant parameters listed that might be scientifically useful for analyses involving detection efficiencies:
+\begin{itemize}
+\item {\tt psLnL [float]} -- {\it Natural log likelihood of the observed data given the point source model.} This represents the probability that a detected source is a point source; detection efficiencies would not apply to non-point sources.
+\item {\tt fpBkgd [float]} $\rm nJy/asec^2$ -- {\it Estimated background at the position (centroid) of the object in the template image.} This will be useful to provide detection efficiencies in difference images as a function of the background at that location.
+\item {\tt fpBkgdErr [float]} $\rm nJy/asec^2$ -- {\it Estimated uncertainty of {\tt fpBkgd}.} Useful in the same way as {\tt fpBkgd}. 
+\end{itemize}
+
+
+% % % % % % % % % % % % % % % % 
+\subsection{Data Management Science Pipelines Design (LDM-151)}\label{ssec:docs_ldm151}
+
+\citeds{LDM-151}, V4.3 (Nov 10 2020), details the scientific design and implementation of the requirements set by the SRD, OSS, and DMSR, and the generation of the data products described in the DPDD.
+
+Section 3, {\it ``Alert Production"}, states that {\it ``In this document we do not address estimation of the selection function for alert generation through the injection of simulated sources. Such a process could be undertaken in batch mode as part of the DRP."}
+
+However, \citeds{LDM-151} does make two relevant statements about the {\tt spuriousness} parameter which describe how the real-bogus algorithm will likely {\it ``be based on a trained random forest classifier ... conditioned on the image quality and airmass"} (Section 3.2.4) and that it  {\it ``may use machine learning on other measurements or pixels"} (Section 6.7.2).
+
+
+%Section 3.2.4, {\it ``Difference Imaging"}, states that {\it ``The application of spuriousness algorithms, also known as 'real-bogus', may be applied at this time dependent on whether the number of false positives is less than 50\% of the detected sources. ... The default technique will be based on a trained random forest classifier. It is likely that the training of this classifier will need to be conditioned on the image quality and airmass of the observations."} 
+
+% Section 6.7.2, {\it ``Algorithms"}, states that the {\tt spuriousness} measurement is a {\it ``per-source measure of likelihood the detection is junk (in a difference image)"} that {\it ``may use machine learning on other measurements or pixels"} and {\it ``may be augmented by spuriousness measures that aren't purely per-source"}. Figure 12, a matrix showing the algorithms applied to the different types of measurements (single visit, difference image, etc.) shows that a different implementation or algorithm for {\tt spuriousness} will be used for the Difference Image Measurement compared to the Single Visit, Multi-Coadd, Multi-Epoch, and Forced Measurements.
+
+% Section 5.6.3, {\tt MakeSelectionMaps}, states that this calibration step {\it ``is responsible for producing multi-scale maps that describe LSST's depth and efficiency at detecting different classes of object. The details of what metrics will be mapped, the format and scale of the maps (e.g. hierarchical pixelizations vs. polygons), and the way the metrics will be computed are all unknown".} It also states that this must be extendable to Level 3, but that {\it ``the details of what DM will provide still needs to be clarified to the community"}, and notes that the reprocessing time for fake plants could be prohibitive. However, this referring to the depth and efficiency of detecting static-sky objects in the direct images or deep coadds, not transients/variables in the difference images.
+
